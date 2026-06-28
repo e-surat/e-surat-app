@@ -51,6 +51,8 @@ export default async function ArsipPage({
     Object.entries(sp).filter(([, v]) => v) as [string, string][]
   ).toString();
 
+  const years = [2023, 2024, 2025, 2026];
+
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
@@ -61,6 +63,35 @@ export default async function ArsipPage({
         >
           Export CSV
         </a>
+      </div>
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Link
+          href="/arsip"
+          className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+            !sp.from
+              ? "bg-slate-900 text-white"
+              : "border border-slate-300 text-slate-700 hover:bg-slate-100"
+          }`}
+        >
+          Semua
+        </Link>
+        {years.map((y) => {
+          const active = sp.from === `${y}-01-01`;
+          return (
+            <Link
+              key={y}
+              href={`/arsip?from=${y}-01-01&to=${y}-12-31`}
+              className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
+                active
+                  ? "bg-slate-900 text-white"
+                  : "border border-slate-300 text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              {y}
+            </Link>
+          );
+        })}
       </div>
 
       <form className="mb-4 grid grid-cols-1 gap-3 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:grid-cols-5">
