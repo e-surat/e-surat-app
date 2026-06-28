@@ -69,7 +69,14 @@ export default async function SuratKeluarPage({
                   {l.letter_number}
                 </td>
                 <td className="px-4 py-3">{l.counterpart}</td>
-                <td className="px-4 py-3">{l.subject}</td>
+                <td className="px-4 py-3">
+                  <Link
+                    href={`/surat/${l.id}`}
+                    className="font-medium text-blue-600 hover:underline"
+                  >
+                    {l.subject}
+                  </Link>
+                </td>
                 <td className="px-4 py-3">
                   <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs">
                     {l.status}

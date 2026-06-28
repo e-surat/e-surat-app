@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import Sidebar from "@/components/Sidebar";
 import LogoutButton from "@/components/LogoutButton";
+import NotificationBell from "@/components/NotificationBell";
 
 export default async function AppLayout({
   children,
@@ -36,7 +37,10 @@ export default async function AppLayout({
               {profile?.role ?? "staf"}
             </span>
           </div>
-          <LogoutButton />
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <LogoutButton />
+          </div>
         </header>
         <main className="flex-1 p-6">{children}</main>
       </div>
