@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { updateRole } from "./actions";
+import AddUserForm from "./AddUserForm";
 
 const ROLES = ["admin", "pimpinan", "staf"];
 
@@ -27,9 +28,13 @@ export default async function PengaturanPage() {
     <div>
       <h1 className="mb-1 text-xl font-semibold text-slate-900">Pengaturan</h1>
       <p className="mb-5 text-sm text-slate-500">
-        Kelola role pengguna sistem e-Surat.
+        Kelola pengguna & role sistem e-Surat.
       </p>
 
+      <h2 className="mb-2 text-sm font-semibold text-slate-700">Tambah User</h2>
+      <AddUserForm />
+
+      <h2 className="mb-2 text-sm font-semibold text-slate-700">Daftar Pengguna</h2>
       <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
