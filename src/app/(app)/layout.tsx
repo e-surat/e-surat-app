@@ -25,13 +25,15 @@ export default async function AppLayout({
     .eq("id", user.id)
     .maybeSingle();
 
+  const isAdmin = profile?.role === "admin";
+
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <Sidebar />
+      <Sidebar isAdmin={isAdmin} />
       <div className="flex flex-1 flex-col">
         <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <MobileNav />
+            <MobileNav isAdmin={isAdmin} />
             <div className="text-sm text-slate-600">
               <span className="font-medium text-slate-900">
                 {profile?.full_name ?? user.email}

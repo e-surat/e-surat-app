@@ -6,9 +6,10 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { NAV } from "@/lib/nav";
 
-export default function MobileNav() {
+export default function MobileNav({ isAdmin = false }: { isAdmin?: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const items = NAV.filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <div className="md:hidden">
@@ -46,7 +47,7 @@ export default function MobileNav() {
               </button>
             </div>
             <nav className="space-y-1">
-              {NAV.map((item) => {
+              {items.map((item) => {
                 const active =
                   pathname === item.href ||
                   pathname.startsWith(item.href + "/");

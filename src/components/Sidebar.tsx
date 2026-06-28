@@ -5,8 +5,9 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { NAV } from "@/lib/nav";
 
-export default function Sidebar() {
+export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const items = NAV.filter((item) => !item.adminOnly || isAdmin);
 
   return (
     <aside className="hidden w-60 shrink-0 border-r border-slate-200 bg-white md:block">
@@ -21,7 +22,7 @@ export default function Sidebar() {
         <p className="mt-2 text-sm font-semibold text-slate-900">e-Surat</p>
       </div>
       <nav className="space-y-1 px-3">
-        {NAV.map((item) => {
+        {items.map((item) => {
           const active =
             pathname === item.href || pathname.startsWith(item.href + "/");
           return (
