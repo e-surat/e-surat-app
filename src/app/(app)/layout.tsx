@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import MobileNav from "@/components/MobileNav";
 import LogoutButton from "@/components/LogoutButton";
 import NotificationBell from "@/components/NotificationBell";
+import { isAdminRole, roleLabel } from "@/lib/roles";
 
 export default async function AppLayout({
   children,
@@ -25,13 +26,8 @@ export default async function AppLayout({
     .eq("id", user.id)
     .maybeSingle();
 
-  const isAdmin = profile?.role === "admin";
-  const roleLabels: Record<string, string> = {
-    admin: "Administrator",
-    pimpinan: "Pimpinan",
-    staf: "Staf",
-  };
-  const roleLabel = roleLabels[profile?.role ?? "staf"] ?? "Staf";
+  const isAdmin = isAdminRole(profile?.role);
+  const roleText = roleLabel(profile?.role);
 
   return (
     <div className="flex min-h-screen bg-slate-50">
@@ -45,7 +41,7 @@ export default async function AppLayout({
               <p className="font-semibold text-slate-900">
                 {profile?.full_name ?? user.email}
               </p>
-              <p className="text-xs text-indigo-500">{roleLabel}</p>
+              <p className="text-xs text-indigo-500">{roleText}</p>
             </div>
             <LogoutButton />
           </div>

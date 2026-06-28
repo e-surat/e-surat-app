@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { updateRole } from "./actions";
+import { ADMIN_ROLES } from "@/lib/roles";
 import AddUserForm from "./AddUserForm";
-
-const ROLES = ["admin", "pimpinan", "staf"];
+import UserRow from "./UserRow";
 
 export default async function PengaturanPage() {
   const supabase = await createClient();
@@ -17,11 +16,11 @@ export default async function PengaturanPage() {
     .select("role")
     .eq("id", user.id)
     .single();
-  if (me?.role !== "admin") redirect("/dashboard");
+  if (!ADMIN_ROLES.includes(me?.role ?? "")) redirect("/dashboard");
 
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("id, full_name, role, is_active, divisions(name)")
+    .select("id, full_name, role, divisions(name)")
     .order("full_name", { ascending: true });
 
   return (
@@ -39,9 +38,8 @@ export default async function PengaturanPage() {
         <table className="min-w-full divide-y divide-slate-200 text-sm">
           <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
             <tr>
-              <th className="px-4 py-3">Nama</th>
+              <th className="px-4 py-3">Nama &amp; Role</th>
               <th className="px-4 py-3">Divisi</th>
-              <th className="px-4 py-3">Role</th>
               <th className="px-4 py-3">Aksi</th>
             </tr>
           </thead>
@@ -51,41 +49,19 @@ export default async function PengaturanPage() {
                 ? p.divisions[0]?.name
                 : (p.divisions as { name?: string } | null)?.name;
               return (
-                <tr key={p.id} className="hover:bg-slate-50">
-                  <td className="px-4 py-3 font-medium text-slate-900">
-                    {p.full_name ?? "(tanpa nama)"}
-                  </td>
-                  <td className="px-4 py-3 text-slate-600">{division ?? "-"}</td>
-                  <td className="px-4 py-3">
-                    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs">
-                      {p.role}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <form action={updateRole} className="flex items-center gap-2">
-                      <input type="hidden" name="user_id" value={p.id} />
-                      <select
-                        name="role"
-                        defaultValue={p.role}
-                        className="input w-32"
-                      >
-                        {ROLES.map((r) => (
-                          <option key={r} value={r}>
-                            {r}
-                          </option>
-                        ))}
-                      </select>
-                      <button className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800">
-                        Simpan
-                      </button>
-                    </form>
-                  </td>
-                </tr>
+                <UserRow
+                  key={p.id}
+                  id={p.id}
+                  fullName={p.full_name ?? ""}
+                  role={p.role}
+                  division={division ?? "-"}
+                  isSelf={p.id === user.id}
+                />
               );
             })}
             {(!profiles || profiles.length === 0) && (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={3} className="px-4 py-8 text-center text-slate-400">
                   Belum ada pengguna.
                 </td>
               </tr>

@@ -2,8 +2,7 @@
 
 import { useActionState } from "react";
 import { createUser } from "./actions";
-
-const ROLES = ["admin", "pimpinan", "staf"];
+import { ROLE_OPTIONS } from "@/lib/roles";
 
 type State = { error?: string; success?: string } | null;
 
@@ -37,10 +36,10 @@ export default function AddUserForm() {
         required
         className="input"
       />
-      <select name="role" defaultValue="staf" className="input">
-        {ROLES.map((r) => (
-          <option key={r} value={r}>
-            {r}
+      <select name="role" defaultValue="officer" className="input">
+        {ROLE_OPTIONS.map((r) => (
+          <option key={r.value} value={r.value}>
+            {r.label}
           </option>
         ))}
       </select>
