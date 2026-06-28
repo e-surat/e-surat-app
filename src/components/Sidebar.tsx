@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { NAV } from "@/lib/nav";
 
@@ -10,8 +11,14 @@ export default function Sidebar() {
   return (
     <aside className="hidden w-60 shrink-0 border-r border-slate-200 bg-white md:block">
       <div className="px-5 py-5">
-        <p className="text-lg font-bold text-slate-900">e-Surat</p>
-        <p className="text-xs text-slate-500">Yayasan JaRI</p>
+        <Image
+          src="/logo-jari.png"
+          alt="Yayasan JaRI"
+          width={140}
+          height={48}
+          className="h-12 w-auto"
+        />
+        <p className="mt-2 text-sm font-semibold text-slate-900">e-Surat</p>
       </div>
       <nav className="space-y-1 px-3">
         {NAV.map((item) => {

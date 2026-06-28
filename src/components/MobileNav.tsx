@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { NAV } from "@/lib/nav";
 
@@ -29,10 +30,13 @@ export default function MobileNav() {
           />
           <aside className="absolute left-0 top-0 h-full w-64 bg-white p-4 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <div>
-                <p className="text-lg font-bold text-slate-900">e-Surat</p>
-                <p className="text-xs text-slate-500">Yayasan JaRI</p>
-              </div>
+              <Image
+                src="/logo-jari.png"
+                alt="Yayasan JaRI"
+                width={120}
+                height={40}
+                className="h-10 w-auto"
+              />
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Tutup menu"

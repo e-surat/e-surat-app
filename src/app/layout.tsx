@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "e-Surat | Yayasan JaRI",
   description: "Sistem manajemen surat Yayasan JaRI",
+  icons: { icon: "/logo-jari.png" },
 };
 
 export default function RootLayout({
