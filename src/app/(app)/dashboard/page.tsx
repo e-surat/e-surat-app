@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { classifyLetter, LETTER_TYPES } from "@/lib/letterType";
+import DashboardCharts from "./DashboardCharts";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -39,6 +41,48 @@ export default async function DashboardPage() {
     { label: "Surat Keluar", value: keluar.count ?? 0 },
     { label: "Disposisi Aktif", value: disposisi.count ?? 0 },
   ];
+
+  const { data: allLetters } = await supabase
+    .from("letters")
+    .select("direction, letter_date, subject")
+    .is("deleted_at", null);
+
+  const yearMap = new Map<string, { masuk: number; keluar: number }>();
+  const typeMatrix = new Map<string, Map<string, number>>();
+  const yearsSet = new Set<string>();
+
+  for (const l of allLetters ?? []) {
+    const year = (l.letter_date ?? "").slice(0, 4) || "?";
+    yearsSet.add(year);
+    const y = yearMap.get(year) ?? { masuk: 0, keluar: 0 };
+    if (l.direction === "masuk") y.masuk++;
+    else if (l.direction === "keluar") y.keluar++;
+    yearMap.set(year, y);
+
+    const jenis = classifyLetter(l.subject);
+    const tm = typeMatrix.get(jenis) ?? new Map<string, number>();
+    tm.set(year, (tm.get(year) ?? 0) + 1);
+    typeMatrix.set(jenis, tm);
+  }
+
+  const years = [...yearsSet].sort();
+  const perYear = years.map((y) => ({
+    year: y,
+    masuk: yearMap.get(y)?.masuk ?? 0,
+    keluar: yearMap.get(y)?.keluar ?? 0,
+  }));
+
+  const typeRows = LETTER_TYPES.map((t) => {
+    const tm = typeMatrix.get(t);
+    const counts = years.map((y) => tm?.get(y) ?? 0);
+    const total = counts.reduce((a, b) => a + b, 0);
+    return { type: t, counts, total };
+  }).filter((r) => r.total > 0);
+
+  const yearTotals = years.map((_, i) =>
+    typeRows.reduce((sum, r) => sum + r.counts[i], 0)
+  );
+  const grandTotal = yearTotals.reduce((a, b) => a + b, 0);
 
   const workflow = [
     {
@@ -109,6 +153,60 @@ export default async function DashboardPage() {
               )}
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="mt-6">
+        <h2 className="mb-4 text-base font-semibold text-slate-900">
+          Analisis Surat
+        </h2>
+        <DashboardCharts perYear={perYear} pies={perYear} />
+
+        <div className="mt-4 overflow-x-auto rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <h3 className="mb-4 text-sm font-semibold text-slate-900">
+            Jumlah Surat per Jenis & Tahun
+          </h3>
+          <table className="min-w-full divide-y divide-slate-200 text-sm">
+            <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
+              <tr>
+                <th className="px-4 py-3">Jenis Surat</th>
+                {years.map((y) => (
+                  <th key={y} className="px-4 py-3 text-right">
+                    {y}
+                  </th>
+                ))}
+                <th className="px-4 py-3 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {typeRows.map((r) => (
+                <tr key={r.type} className="hover:bg-slate-50">
+                  <td className="px-4 py-3 font-medium text-slate-800">
+                    {r.type}
+                  </td>
+                  {r.counts.map((c, i) => (
+                    <td key={i} className="px-4 py-3 text-right text-slate-600">
+                      {c}
+                    </td>
+                  ))}
+                  <td className="px-4 py-3 text-right font-semibold text-slate-900">
+                    {r.total}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="border-t border-slate-200 bg-slate-50 font-semibold text-slate-900">
+                <td className="px-4 py-3">Total</td>
+                {yearTotals.map((t, i) => (
+                  <td key={i} className="px-4 py-3 text-right">
+                    {t}
+                  </td>
+                ))}
+                <td className="px-4 py-3 text-right">{grandTotal}</td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </div>
     </div>
