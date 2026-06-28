@@ -9,6 +9,7 @@ const NAV = [
   { href: "/surat-keluar", label: "Surat Keluar" },
   { href: "/disposisi", label: "Disposisi" },
   { href: "/arsip", label: "Arsip" },
+  { href: "/laporan", label: "Laporan" },
 ];
 
 export default function Sidebar() {
