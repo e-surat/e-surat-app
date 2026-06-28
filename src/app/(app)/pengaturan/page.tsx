@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { ADMIN_ROLES } from "@/lib/roles";
 import AddUserForm from "./AddUserForm";
-import UserRow from "./UserRow";
+import UsersTable, { type UserRowData } from "./UsersTable";
 
 export default async function PengaturanPage() {
   const supabase = await createClient();
@@ -18,10 +19,36 @@ export default async function PengaturanPage() {
     .single();
   if (!ADMIN_ROLES.includes(me?.role ?? "")) redirect("/dashboard");
 
-  const { data: profiles } = await supabase
+  const admin = createAdminClient();
+
+  const { data: profiles } = await admin
     .from("profiles")
-    .select("id, full_name, role, divisions(name)")
+    .select("id, full_name, role, is_active, updated_at")
     .order("full_name", { ascending: true });
+
+  const { data: authList } = await admin.auth.admin.listUsers({
+    page: 1,
+    perPage: 1000,
+  });
+  const authMap = new Map(
+    (authList?.users ?? []).map((u) => [
+      u.id,
+      { email: u.email ?? "-", lastLogin: u.last_sign_in_at ?? null },
+    ])
+  );
+
+  const users: UserRowData[] = (profiles ?? []).map((p) => {
+    const auth = authMap.get(p.id);
+    return {
+      id: p.id,
+      fullName: p.full_name ?? "",
+      email: auth?.email ?? "-",
+      role: p.role,
+      isActive: p.is_active ?? true,
+      lastLogin: auth?.lastLogin ?? null,
+      lastActive: p.updated_at ?? null,
+    };
+  });
 
   return (
     <div>
@@ -34,41 +61,7 @@ export default async function PengaturanPage() {
       <AddUserForm />
 
       <h2 className="mb-2 text-sm font-semibold text-slate-700">Daftar Pengguna</h2>
-      <div className="overflow-x-auto rounded-2xl bg-white shadow-sm ring-1 ring-slate-200">
-        <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
-            <tr>
-              <th className="px-4 py-3">Nama &amp; Role</th>
-              <th className="px-4 py-3">Divisi</th>
-              <th className="px-4 py-3">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {(profiles ?? []).map((p) => {
-              const division = Array.isArray(p.divisions)
-                ? p.divisions[0]?.name
-                : (p.divisions as { name?: string } | null)?.name;
-              return (
-                <UserRow
-                  key={p.id}
-                  id={p.id}
-                  fullName={p.full_name ?? ""}
-                  role={p.role}
-                  division={division ?? "-"}
-                  isSelf={p.id === user.id}
-                />
-              );
-            })}
-            {(!profiles || profiles.length === 0) && (
-              <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-slate-400">
-                  Belum ada pengguna.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <UsersTable users={users} currentUserId={user.id} />
     </div>
   );
 }
