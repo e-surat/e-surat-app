@@ -83,7 +83,7 @@ export default function DashboardCharts({
         <h3 className="mb-4 text-sm font-semibold text-slate-900">
           Proporsi Masuk vs Keluar per Tahun
         </h3>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {pies.map((p) => {
             const data = [
               { name: "Masuk", value: p.masuk },
@@ -92,15 +92,17 @@ export default function DashboardCharts({
             const total = p.masuk + p.keluar;
             return (
               <div key={p.year} className="text-center">
-                <ResponsiveContainer width="100%" height={150}>
-                  <PieChart>
+                <ResponsiveContainer width="100%" height={210}>
+                  <PieChart margin={{ top: 16, bottom: 16, left: 24, right: 24 }}>
                     <Pie
                       data={data}
                       dataKey="value"
                       nameKey="name"
-                      innerRadius={32}
-                      outerRadius={55}
+                      innerRadius={34}
+                      outerRadius={58}
                       paddingAngle={2}
+                      labelLine
+                      label={({ name, value }) => `${name} (${value})`}
                     >
                       <Cell fill={MASUK} />
                       <Cell fill={KELUAR} />
